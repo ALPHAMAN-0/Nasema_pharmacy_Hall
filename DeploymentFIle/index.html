@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Nasema Pharmacy — free, offline desktop app for small pharmacies</title>
+<meta name="description" content="A free, offline desktop application to run a small pharmacy: organize stock, sell at the counter with first-expiry-first-out, and see exactly how much revenue the shop earns. Built with Electron, React and local SQLite — runs on a low-power Windows PC, no internet needed." />
+<meta name="theme-color" content="#0b3b3c" />
+<style>
+  :root{
+    --teal-900:#0b3b3c; --teal-800:#0e4f4f; --teal:#0e7490; --teal-600:#0d9488;
+    --emerald:#15803d; --emerald-2:#dcfce7; --emerald-ink:#166534;
+    --amber:#b45309; --amber-2:#fef3c7; --rose:#b91c1c; --rose-2:#fee2e2;
+    --ink:#0f1f24; --ink-2:#32474d; --mute:#5d7177; --line:#dfeaea; --line-2:#eef5f5;
+    --bg:#f2f8f8; --surface:#ffffff; --surface-2:#f4faf9;
+    --radius:16px; --shadow:0 1px 2px rgba(12,40,44,.06),0 8px 24px rgba(12,40,44,.06);
+    --shadow-lg:0 24px 60px rgba(11,59,60,.18);
+    --maxw:1120px;
+    --sans:"Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,"Noto Sans",sans-serif;
+    --nums:"SF Mono",ui-monospace,"Cascadia Mono","Roboto Mono",Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto} *{animation:none!important;transition:none!important}}
+  body{margin:0;font-family:var(--sans);color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  h1,h2,h3{line-height:1.15;letter-spacing:-.02em;margin:0}
+  p{margin:0}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+  .nums{font-family:var(--nums);font-variant-numeric:tabular-nums}
+  .skip{position:absolute;left:-999px;top:0;background:#fff;color:var(--teal);padding:10px 16px;border-radius:8px;z-index:1000}
+  .skip:focus{left:12px;top:12px}
+
+  /* nav */
+  header.nav{position:sticky;top:0;z-index:100;background:rgba(242,248,248,.82);backdrop-filter:saturate(1.4) blur(12px);border-bottom:1px solid var(--line)}
+  .nav-row{display:flex;align-items:center;gap:18px;height:62px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:-.02em;font-size:16px}
+  .logo{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--teal),var(--teal-600));display:grid;place-items:center;color:#fff;flex-shrink:0;box-shadow:0 4px 12px rgba(14,116,144,.35)}
+  .navlinks{margin-left:auto;display:flex;gap:6px;align-items:center}
+  .navlinks a{padding:8px 12px;border-radius:9px;font-size:14px;color:var(--ink-2);font-weight:550}
+  .navlinks a:hover{background:var(--line-2);color:var(--ink)}
+  .navlinks .gh{display:inline-flex;gap:7px;align-items:center;background:var(--ink);color:#fff;font-weight:600}
+  .navlinks .gh:hover{background:#0a2a2d;color:#fff}
+  .menu-btn{margin-left:auto;display:none;background:var(--surface);border:1px solid var(--line);border-radius:10px;width:42px;height:38px;cursor:pointer;color:var(--ink)}
+  @media (max-width:860px){
+    .navlinks{position:fixed;inset:62px 0 auto 0;flex-direction:column;background:var(--surface);border-bottom:1px solid var(--line);padding:10px 24px 18px;gap:4px;margin:0;display:none;box-shadow:var(--shadow)}
+    .navlinks.open{display:flex}
+    .navlinks a{padding:12px;border-radius:10px}
+    .menu-btn{display:grid;place-items:center}
+  }
+
+  /* buttons */
+  .btn{display:inline-flex;align-items:center;gap:9px;padding:13px 20px;border-radius:12px;font-weight:650;font-size:15px;border:1px solid transparent;cursor:pointer;transition:transform .15s ease,box-shadow .15s ease,background .15s ease}
+  .btn:hover{transform:translateY(-1px)}
+  .btn-primary{background:linear-gradient(135deg,#10b981,var(--teal-600));color:#fff;box-shadow:0 10px 24px rgba(13,148,136,.4)}
+  .btn-primary:hover{box-shadow:0 14px 30px rgba(13,148,136,.5)}
+  .btn-ghost{background:rgba(255,255,255,.08);color:#eafffb;border-color:rgba(255,255,255,.28)}
+  .btn-ghost:hover{background:rgba(255,255,255,.16)}
+  .btn-dark{background:var(--ink);color:#fff}
+  .btn-outline{background:var(--surface);border-color:var(--line);color:var(--ink)}
+  .btn-outline:hover{border-color:var(--teal-600);color:var(--teal)}
+
+  /* hero */
+  .hero{position:relative;overflow:hidden;background:radial-gradient(1200px 500px at 78% -10%,rgba(16,185,129,.30),transparent 60%),linear-gradient(160deg,var(--teal-900),var(--teal-800) 60%,#0c4a4a);color:#eafffb}
+  .hero::after{content:"";position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.05) 1px,transparent 1px);background-size:22px 22px;opacity:.5;pointer-events:none}
+  .hero .wrap{position:relative;padding:72px 24px 88px;display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center}
+  @media (max-width:900px){.hero .wrap{grid-template-columns:1fr;padding:52px 24px 64px;gap:36px}}
+  .tag{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;letter-spacing:.02em;padding:7px 13px;border-radius:999px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#c8fff2}
+  .hero h1{font-size:clamp(32px,5vw,52px);font-weight:820;margin:18px 0 0;color:#fff}
+  .hero h1 .accent{background:linear-gradient(120deg,#6ee7b7,#5eead4);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .hero .lede{font-size:clamp(16px,2vw,19px);color:#bfe9e4;margin-top:18px;max-width:560px}
+  .hero-cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
+  .hero-meta{display:flex;flex-wrap:wrap;gap:18px 26px;margin-top:30px;font-size:13.5px;color:#a9ddd7}
+  .hero-meta b{color:#eafffb;font-weight:700}
+  .hero-meta .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#34d399;margin-right:8px;box-shadow:0 0 0 4px rgba(52,211,153,.2)}
+
+  /* generic section */
+  section{padding:84px 0}
+  .eyebrow{font-size:12.5px;font-weight:750;letter-spacing:.08em;text-transform:uppercase;color:var(--teal-600)}
+  .sec-h{font-size:clamp(24px,3.4vw,34px);font-weight:800;margin-top:10px}
+  .sec-sub{color:var(--mute);font-size:16px;margin-top:14px;max-width:680px}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+
+  /* why / story two-col */
+  .prose{font-size:16.5px;color:var(--ink-2);max-width:720px}
+  .prose p+p{margin-top:16px}
+  .split{display:grid;grid-template-columns:1.3fr .7fr;gap:40px;align-items:start}
+  @media (max-width:860px){.split{grid-template-columns:1fr;gap:28px}}
+  .aside-card{padding:24px;background:linear-gradient(160deg,var(--surface),var(--surface-2));border:1px solid var(--line)}
+  .aside-card h3{font-size:15px}
+  .checklist{list-style:none;padding:0;margin:14px 0 0;display:flex;flex-direction:column;gap:12px}
+  .checklist li{display:flex;gap:11px;font-size:14.5px;color:var(--ink-2)}
+  .checklist .ic{flex-shrink:0;width:22px;height:22px;border-radius:7px;background:var(--emerald-2);color:var(--emerald-ink);display:grid;place-items:center}
+
+  /* tech grid */
+  .grid{display:grid;gap:18px}
+  .tech-grid{grid-template-columns:repeat(3,1fr)}
+  @media (max-width:860px){.tech-grid{grid-template-columns:1fr}}
+  .tech{padding:22px}
+  .tech .name{display:flex;align-items:center;gap:10px;font-weight:750;font-size:16px}
+  .tech .badge{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;background:var(--surface-2);border:1px solid var(--line);font-size:16px}
+  .tech p{color:var(--mute);font-size:14px;margin-top:11px}
+
+  /* features */
+  .feat-grid{grid-template-columns:repeat(3,1fr)}
+  @media (max-width:860px){.feat-grid{grid-template-columns:1fr}}
+  .feat{padding:22px}
+  .feat .ic{width:40px;height:40px;border-radius:11px;background:var(--emerald-2);color:var(--emerald-ink);display:grid;place-items:center;margin-bottom:14px}
+  .feat h3{font-size:16px}
+  .feat p{color:var(--mute);font-size:14px;margin-top:8px}
+
+  /* how it's built */
+  .how{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;background:var(--surface)}
+  @media (max-width:860px){.how{grid-template-columns:1fr 1fr}}
+  @media (max-width:520px){.how{grid-template-columns:1fr}}
+  .how .layer{padding:22px;border-right:1px solid var(--line)}
+  .how .layer:last-child{border-right:none}
+  .how .layer h3{font-size:14.5px;display:flex;align-items:center;gap:8px}
+  .how .layer .path{font-family:var(--nums);font-size:11.5px;color:var(--teal-600);margin-top:3px}
+  .how .layer p{color:var(--mute);font-size:13px;margin-top:10px}
+
+  /* screens / previews */
+  .previews{display:grid;grid-template-columns:1.1fr .9fr;gap:22px}
+  @media (max-width:900px){.previews{grid-template-columns:1fr}}
+  .frame{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:var(--shadow-lg)}
+  .frame .bar{height:38px;display:flex;align-items:center;gap:7px;padding:0 14px;background:var(--surface-2);border-bottom:1px solid var(--line)}
+  .frame .bar .d{width:11px;height:11px;border-radius:50%;background:#cdd9d9}
+  .frame .bar .ttl{margin-left:10px;font-size:12px;color:var(--mute);font-weight:600}
+  .frame .body{padding:16px}
+  .prev-cap{font-size:12.5px;color:var(--mute);margin-top:12px;text-align:center}
+
+  /* mini POS */
+  .pos-search{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:10px;padding:9px 12px;color:var(--mute);font-size:13px;background:var(--surface-2)}
+  .pills-row{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}
+  .med{flex:1 1 calc(50% - 7px);min-width:120px;border:1px solid var(--line);border-radius:11px;padding:11px;display:flex;flex-direction:column;gap:8px}
+  .med .top{display:flex;gap:9px;align-items:center}
+  .med .av{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;color:#fff;font-weight:700;font-size:12px;flex-shrink:0}
+  .med .nm{font-size:12.5px;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .med .gn{font-size:10.5px;color:var(--mute)}
+  .med .row2{display:flex;align-items:center;justify-content:space-between}
+  .price{font-weight:750;font-size:12.5px}
+  .pill{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:650;padding:3px 8px;border-radius:999px}
+  .pill.g{background:var(--emerald-2);color:var(--emerald-ink)} .pill.a{background:var(--amber-2);color:var(--amber)} .pill.r{background:var(--rose-2);color:var(--rose)} .pill.b{background:#e0f2fe;color:#075985}
+
+  /* mini dashboard */
+  .stat-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .stat{border:1px solid var(--line);border-radius:11px;padding:12px}
+  .stat .lab{font-size:10.5px;color:var(--mute);font-weight:650;text-transform:uppercase;letter-spacing:.04em}
+  .stat .val{font-size:20px;font-weight:800;margin-top:3px}
+  .stat .val.em{color:var(--teal-600)}
+  .stat .delta{font-size:10.5px;color:var(--emerald);font-weight:650;margin-top:2px}
+  .chart{display:flex;align-items:flex-end;gap:6px;height:74px;margin-top:14px;padding:10px 4px 0;border-top:1px dashed var(--line)}
+  .chart .bar{flex:1;background:linear-gradient(180deg,#34d399,var(--teal-600));border-radius:4px 4px 2px 2px;min-height:8px;opacity:.92}
+  .toplist{margin-top:14px;display:flex;flex-direction:column;gap:9px}
+  .toplist .it{display:flex;align-items:center;justify-content:space-between;font-size:12.5px}
+  .toplist .it .nm{display:flex;align-items:center;gap:8px;color:var(--ink-2)}
+  .toplist .rank{width:18px;height:18px;border-radius:6px;background:var(--surface-2);border:1px solid var(--line);display:grid;place-items:center;font-size:10px;font-weight:700;color:var(--mute)}
+
+  /* cart strip */
+  .cart{margin-top:12px;border:1px solid var(--line);border-radius:11px;padding:12px;background:var(--surface-2)}
+  .cart .line{display:flex;justify-content:space-between;font-size:12px;color:var(--ink-2)}
+  .cart .tot{display:flex;justify-content:space-between;align-items:baseline;margin-top:8px;padding-top:8px;border-top:1px solid var(--line)}
+  .cart .tot b{font-size:18px}
+  .pay{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:10px}
+  .pay span{font-size:10px;text-align:center;padding:7px 2px;border-radius:8px;border:1px solid var(--line);color:var(--ink-2)}
+  .pay span.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .charge{margin-top:9px;background:linear-gradient(135deg,#10b981,var(--teal-600));color:#fff;text-align:center;padding:10px;border-radius:10px;font-weight:700;font-size:13px}
+
+  /* table mini */
+  .tbl{width:100%;border-collapse:collapse;font-size:12px}
+  .tbl th{text-align:left;color:var(--mute);font-weight:650;padding:7px 8px;border-bottom:1px solid var(--line);font-size:10.5px;text-transform:uppercase;letter-spacing:.03em}
+  .tbl td{padding:9px 8px;border-bottom:1px solid var(--line-2)}
+
+  /* download band */
+  .download{background:linear-gradient(160deg,var(--teal-900),#0c4a4a);color:#eafffb;border-radius:24px;padding:48px;display:grid;grid-template-columns:1.2fr .8fr;gap:36px;align-items:center;position:relative;overflow:hidden}
+  .download::after{content:"";position:absolute;right:-60px;top:-60px;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,rgba(16,185,129,.35),transparent 70%)}
+  @media (max-width:760px){.download{grid-template-columns:1fr;padding:32px}}
+  .download h2{font-size:clamp(24px,3.5vw,32px);color:#fff;position:relative}
+  .download p{color:#bfe9e4;margin-top:12px;position:relative}
+  .dl-meta{position:relative;display:flex;flex-direction:column;gap:11px;font-size:13.5px}
+  .dl-meta .r{display:flex;gap:10px;align-items:center;color:#cdeee9}
+  .dl-meta .ic{width:24px;height:24px;border-radius:7px;background:rgba(255,255,255,.12);display:grid;place-items:center;flex-shrink:0}
+  .note{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;color:var(--mute);background:var(--surface-2);border:1px dashed var(--line);padding:8px 13px;border-radius:10px;margin-top:18px}
+
+  footer{border-top:1px solid var(--line);padding:40px 0;color:var(--mute);font-size:14px}
+  .foot-row{display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+  .foot-row a{color:var(--ink-2);font-weight:600}
+  .foot-row a:hover{color:var(--teal)}
+  svg{display:block}
+</style>
+</head>
+<body>
+<a class="skip" href="#why">Skip to content</a>
+
+<header class="nav">
+  <div class="wrap nav-row">
+    <a class="brand" href="#top" aria-label="Nasema Pharmacy home">
+      <span class="logo" aria-hidden="true">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      </span>
+      Nasema Pharmacy
+    </a>
+    <button class="menu-btn" id="menuBtn" aria-label="Toggle menu" aria-expanded="false">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+    </button>
+    <nav class="navlinks" id="navlinks">
+      <a href="#why">Why</a>
+      <a href="#story">Story</a>
+      <a href="#who">Who it's for</a>
+      <a href="#tech">Tech</a>
+      <a href="#screens">Screens</a>
+      <a href="#download">Download</a>
+      <a class="gh" href="https://github.com/NextByte-Solutions/Pharmacy_Nasima_Medical_Hall" target="_blank" rel="noopener">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.7.5.5 5.7.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.2.8-.6v-2c-3.2.7-3.9-1.4-3.9-1.4-.5-1.3-1.3-1.7-1.3-1.7-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.7 1.3 3.4 1 .1-.8.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17 4.6 18 4.9 18 4.9c.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.3c0 .4.2.7.8.6 4.6-1.5 7.9-5.8 7.9-10.9C23.5 5.7 18.3.5 12 .5z"/></svg>
+        GitHub
+      </a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <!-- HERO -->
+  <section class="hero" style="padding:0" aria-label="Introduction">
+    <div class="wrap">
+      <div>
+        <span class="tag">● Free &amp; open source · runs offline</span>
+        <h1>Run a small pharmacy from <span class="accent">one low-power PC</span>.</h1>
+        <p class="lede">Nasema Pharmacy is a free desktop app that organizes your medicines, runs the sales counter, and shows you exactly how much your shop earns — all stored locally, working perfectly even with no internet.</p>
+        <div class="hero-cta">
+          <a class="btn btn-primary" href="https://github.com/NextByte-Solutions/Pharmacy_Nasima_Medical_Hall/releases/latest" target="_blank" rel="noopener">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>
+            Download for Windows
+          </a>
+          <a class="btn btn-ghost" href="https://github.com/NextByte-Solutions/Pharmacy_Nasima_Medical_Hall" target="_blank" rel="noopener">View on GitHub</a>
+        </div>
+        <div class="hero-meta">
+          <span><span class="dot"></span><b>৳0</b> — free, no subscription</span>
+          <span><span class="dot"></span><b>Offline</b> — no internet required</span>
+          <span><span class="dot"></span><b>~21,000</b> medicines built in</span>
+        </div>
+      </div>
+
+      <!-- hero device: revenue snapshot -->
+      <div class="frame" aria-hidden="true">
+        <div class="bar"><span class="d"></span><span class="d"></span><span class="d"></span><span class="ttl">Nasema Pharmacy · Dashboard</span></div>
+        <div class="body">
+          <div class="stat-row">
+            <div class="stat"><div class="lab">Revenue today</div><div class="val em nums">৳12,480</div><div class="delta">▲ 8% vs yesterday</div></div>
+            <div class="stat"><div class="lab">This month</div><div class="val nums">৳3,14,900</div><div class="delta">▲ 12% vs last month</div></div>
+          </div>
+          <div class="chart">
+            <span class="bar" style="height:38%"></span><span class="bar" style="height:54%"></span>
+            <span class="bar" style="height:46%"></span><span class="bar" style="height:70%"></span>
+            <span class="bar" style="height:62%"></span><span class="bar" style="height:88%"></span>
+            <span class="bar" style="height:75%"></span>
+          </div>
+          <div class="toplist">
+            <div class="it"><span class="nm"><span class="rank">1</span> Napa 500mg</span><span class="nums" style="color:var(--mute)">214 sold</span></div>
+            <div class="it"><span class="nm"><span class="rank">2</span> Seclo 20mg</span><span class="nums" style="color:var(--mute)">158 sold</span></div>
+            <div class="it"><span class="nm"><span class="rank">3</span> Maxpro 20mg</span><span class="nums" style="color:var(--mute)">121 sold</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHY -->
+  <section id="why">
+    <div class="wrap split">
+      <div>
+        <span class="eyebrow">Why I built this</span>
+        <h2 class="sec-h">A friend's pharmacy was run on memory and paper.</h2>
+        <div class="prose" style="margin-top:18px">
+          <p>A friend of mine runs a small neighborhood pharmacy. Like a lot of small shops, everything lived in his head and a stack of notebooks — what was in stock, what was running low, which strips were about to expire, and how much the shop had actually earned that day.</p>
+          <p>When he wanted to get organized, the software he found was the wrong fit: monthly subscriptions he didn't want to pay, cloud accounts that needed a steady internet connection he didn't always have, or heavy programs that crawled on the modest computer already sitting on his counter.</p>
+          <p>He didn't need any of that. He needed something <b>free</b>, something that <b>runs on the low-power PC he already owns</b>, and — most of all — a clear answer to one question: <b>“how much did my shop make?”</b> So I built him a desktop app that does exactly that.</p>
+        </div>
+      </div>
+      <div class="aside-card card">
+        <h3>What he actually needed</h3>
+        <ul class="checklist">
+          <li><span class="ic" aria-hidden="true">✓</span><span>Free of cost — no licence, no subscription.</span></li>
+          <li><span class="ic" aria-hidden="true">✓</span><span>Runs on a slow, everyday computer.</span></li>
+          <li><span class="ic" aria-hidden="true">✓</span><span>Works with no internet — data stays on the PC.</span></li>
+          <li><span class="ic" aria-hidden="true">✓</span><span>One place to organize every product.</span></li>
+          <li><span class="ic" aria-hidden="true">✓</span><span>Daily &amp; monthly revenue at a glance.</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- STORY -->
+  <section id="story" style="background:var(--surface);border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
+    <div class="wrap">
+      <span class="eyebrow">The story</span>
+      <h2 class="sec-h">From a stock list to a real point-of-sale.</h2>
+      <div class="prose" style="margin-top:18px">
+        <p>It started as a simple list of medicines. But a pharmacy isn't just a list — a sale has to find the right strip fast, take the money, and quietly do the right thing in the background. So it grew.</p>
+        <p>The first big decision was to make it <b>local-first</b>: the whole database is a single file on the shop's own hard drive (SQLite). That one choice solved three problems at once — it's <b>free</b> to run, it's <b>fast on weak hardware</b>, and it <b>keeps working when the internet doesn't</b>. The shop's data never has to leave the counter.</p>
+        <p>From there came the parts a real pharmacy lives on: <b>first-expiry-first-out</b> selling so the oldest stock goes first and nothing quietly expires on the shelf; a <b>prescription gate</b> so Rx-only medicines can't be sold without a verified prescription; and batch &amp; expiry tracking with low-stock warnings. To save hours of typing, I bundled the entire <b>~21,000-medicine national catalogue offline</b>, searchable instantly — the owner just picks what he stocks.</p>
+        <p>And running through all of it: a <b>revenue dashboard</b>. Today's takings, the month so far, best-sellers, payment mix — the answer to his original question, on the screen the moment he opens the app.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHO -->
+  <section id="who">
+    <div class="wrap">
+      <span class="eyebrow">Purpose · who it's for</span>
+      <h2 class="sec-h">Made for the small, independent pharmacy.</h2>
+      <p class="sec-sub">The kind of shop run by one owner and a counter assistant or two — that needs to be organized and profitable without paying for enterprise software or fighting a slow internet line.</p>
+      <div class="grid feat-grid" style="margin-top:36px">
+        <div class="feat card"><div class="ic" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3h18v6H3zM3 13h18v8H3z"/></svg>
+        </div><h3>The shop owner</h3><p>Sees revenue, stock value, what's selling and what's expiring — and decides what to reorder. Admin role unlocks settings, staff and reports.</p></div>
+        <div class="feat card"><div class="ic" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h12"/></svg>
+        </div><h3>The counter staff</h3><p>A fast, locked-down sell screen: search, add to cart, take cash/bKash/Nagad/card, print the receipt. They see only what they need.</p></div>
+        <div class="feat card"><div class="ic" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6z"/></svg>
+        </div><h3>The patients</h3><p>Prescription-only medicines are gated behind a verified prescription, expired stock is never sold, and VIP customers get refill reminders.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES (compact) -->
+  <section style="padding-top:0">
+    <div class="wrap">
+      <div class="grid feat-grid">
+        <div class="feat card"><div class="ic" aria-hidden="true">🛒</div><h3>Fast POS &amp; FEFO</h3><p>Search by brand, generic or barcode; oldest-expiry stock is sold first, automatically.</p></div>
+        <div class="feat card"><div class="ic" aria-hidden="true">📈</div><h3>Revenue &amp; reports</h3><p>Daily/monthly takings, best-sellers, payment mix, inventory valuation and regulatory logs.</p></div>
+        <div class="feat card"><div class="ic" aria-hidden="true">📦</div><h3>Inventory &amp; expiry</h3><p>Batches, expiry alerts, low-stock warnings, suppliers and purchase orders.</p></div>
+        <div class="feat card"><div class="ic" aria-hidden="true">💊</div><h3>Offline drug catalogue</h3><p>~21,000 medicines built in and searchable instantly — import only what you stock.</p></div>
+        <div class="feat card"><div class="ic" aria-hidden="true">🔒</div><h3>Prescription gate &amp; roles</h3><p>Rx medicines need a verified prescription; owner vs. staff permissions enforced server-side.</p></div>
+        <div class="feat card"><div class="ic" aria-hidden="true">🧾</div><h3>Audit &amp; receipts</h3><p>Every change is logged; printable invoices for each sale.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TECH -->
+  <section id="tech" style="background:var(--surface);border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
+    <div class="wrap">
+      <span class="eyebrow">Tech stack</span>
+      <h2 class="sec-h">Chosen to be free, fast and offline.</h2>
+      <div class="grid tech-grid" style="margin-top:36px">
+        <div class="tech card"><div class="name"><span class="badge" aria-hidden="true">⚡</span>Electron</div><p>Packages the app as a real Windows program that bundles its own runtime — the shop installs one <code>.exe</code>, nothing else.</p></div>
+        <div class="tech card"><div class="name"><span class="badge" aria-hidden="true">⚛️</span>React + Vite + TypeScript</div><p>The interface. TypeScript keeps a money-handling app honest; Vite keeps the UI snappy even on weak hardware.</p></div>
+        <div class="tech card"><div class="name"><span class="badge" aria-hidden="true">🗄️</span>SQLite (better-sqlite3)</div><p>The entire database is one local file — zero setup, tiny footprint, and instant reads on a low-power PC. This is what makes it free &amp; offline.</p></div>
+        <div class="tech card"><div class="name"><span class="badge" aria-hidden="true">🔎</span>SQLite FTS5</div><p>Full-text search powers instant lookups across the ~21,000-medicine catalogue without a server.</p></div>
+        <div class="tech card"><div class="name"><span class="badge" aria-hidden="true">🛡️</span>Secure IPC bridge</div><p>The UI never touches the database directly — every request crosses a guarded <code>contextBridge</code> layer where permissions are enforced.</p></div>
+        <div class="tech card"><div class="name"><span class="badge" aria-hidden="true">📦</span>electron-builder</div><p>Produces the signed-installer-ready Windows <code>.exe</code> automatically via GitHub Actions — no Windows machine needed to ship.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT'S BUILT -->
+  <section id="how">
+    <div class="wrap">
+      <span class="eyebrow">How it's built</span>
+      <h2 class="sec-h">A clean, local-first architecture.</h2>
+      <p class="sec-sub">Four honest layers. The database is owned by the main process and only ever reached through a typed, permission-checked bridge.</p>
+      <div class="how" style="margin-top:32px">
+        <div class="layer"><h3>🖥️ Main</h3><div class="path">src/main</div><p>Electron + SQLite. Owns the data, business rules (FEFO, Rx gate), and the offline catalogue.</p></div>
+        <div class="layer"><h3>🔌 Preload</h3><div class="path">src/preload</div><p>A secure <code>contextBridge</code> — the only door between the UI and the database.</p></div>
+        <div class="layer"><h3>🎨 Renderer</h3><div class="path">src/renderer</div><p>React screens: POS, Dashboard, Inventory, Prescriptions, People, Reports, Settings.</p></div>
+        <div class="layer"><h3>🤝 Shared</h3><div class="path">src/shared</div><p>One source of truth for domain types, the IPC contract and the roles/permissions matrix.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SCREENS / PREVIEWS -->
+  <section id="screens" style="background:var(--surface);border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
+    <div class="wrap">
+      <span class="eyebrow">A look inside</span>
+      <h2 class="sec-h">The screens the shop uses every day.</h2>
+      <p class="sec-sub">Interface previews of the real app, built in the same emerald design. Install it to see the live thing.</p>
+
+      <div class="previews" style="margin-top:34px">
+        <!-- POS preview -->
+        <div>
+          <div class="frame" aria-hidden="true">
+            <div class="bar"><span class="d"></span><span class="d"></span><span class="d"></span><span class="ttl">Sell / POS</span></div>
+            <div class="body">
+              <div class="pos-search">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
+                napa
+              </div>
+              <div class="pills-row">
+                <div class="med"><div class="top"><span class="av" style="background:#0d9488">N</span><div style="min-width:0"><div class="nm">Napa</div><div class="gn">Paracetamol 500mg</div></div></div><div class="row2"><span class="price nums">৳1.20</span><span class="pill g nums">120</span></div></div>
+                <div class="med"><div class="top"><span class="av" style="background:#0e7490">N</span><div style="min-width:0"><div class="nm">Napa Extend</div><div class="gn">Paracetamol 665mg</div></div></div><div class="row2"><span class="price nums">৳2.00</span><span class="pill a nums">14</span></div></div>
+                <div class="med"><div class="top"><span class="av" style="background:#15803d">S</span><div style="min-width:0"><div class="nm">Seclo</div><div class="gn">Omeprazole 20mg</div></div></div><div class="row2"><span class="price nums">৳7.00</span><span class="pill g nums">86</span></div></div>
+                <div class="med"><div class="top"><span class="av" style="background:#b45309">A</span><div style="min-width:0"><div class="nm">Ace</div><div class="gn">Paracetamol 500mg</div></div></div><div class="row2"><span class="price nums">৳1.05</span><span class="pill b">Rx</span></div></div>
+              </div>
+              <div class="cart">
+                <div class="line"><span>Napa 500mg × 6</span><span class="nums">৳7.20</span></div>
+                <div class="line"><span>Seclo 20mg × 1</span><span class="nums">৳7.00</span></div>
+                <div class="tot"><span style="font-weight:600">Total</span><b class="nums">৳14.20</b></div>
+                <div class="pay"><span class="on">Cash</span><span>bKash</span><span>Nagad</span><span>Card</span></div>
+                <div class="charge">✓ Charge ৳14.20</div>
+              </div>
+            </div>
+          </div>
+          <p class="prev-cap">Sell screen — search, cart, FEFO &amp; payment</p>
+        </div>
+
+        <!-- Inventory + revenue stacked -->
+        <div style="display:flex;flex-direction:column;gap:22px">
+          <div>
+            <div class="frame" aria-hidden="true">
+              <div class="bar"><span class="d"></span><span class="d"></span><span class="d"></span><span class="ttl">Inventory · batches &amp; expiry</span></div>
+              <div class="body" style="padding:6px 14px 14px">
+                <table class="tbl">
+                  <thead><tr><th>Medicine</th><th>Batch</th><th>Expiry</th><th style="text-align:right">Qty</th></tr></thead>
+                  <tbody>
+                    <tr><td>Napa 500mg</td><td class="nums">NP24A</td><td><span class="pill g">Jan 2028</span></td><td class="nums" style="text-align:right">200</td></tr>
+                    <tr><td>Seclo 20mg</td><td class="nums">SC23X</td><td><span class="pill a">90d left</span></td><td class="nums" style="text-align:right">42</td></tr>
+                    <tr><td>Maxpro 20mg</td><td class="nums">MX22</td><td><span class="pill r">expired</span></td><td class="nums" style="text-align:right">3</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <p class="prev-cap">Inventory — batch &amp; expiry tracking</p>
+          </div>
+          <div>
+            <div class="frame" aria-hidden="true">
+              <div class="bar"><span class="d"></span><span class="d"></span><span class="d"></span><span class="ttl">Reports · revenue</span></div>
+              <div class="body">
+                <div class="stat-row">
+                  <div class="stat"><div class="lab">Orders today</div><div class="val nums">47</div></div>
+                  <div class="stat"><div class="lab">Avg. basket</div><div class="val nums">৳266</div></div>
+                </div>
+                <div class="chart">
+                  <span class="bar" style="height:40%"></span><span class="bar" style="height:58%"></span><span class="bar" style="height:50%"></span><span class="bar" style="height:74%"></span><span class="bar" style="height:66%"></span><span class="bar" style="height:90%"></span><span class="bar" style="height:80%"></span>
+                </div>
+              </div>
+            </div>
+            <p class="prev-cap">Reports — revenue over time</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DOWNLOAD -->
+  <section id="download">
+    <div class="wrap">
+      <div class="download">
+        <div>
+          <h2>Free to download. Yours to run.</h2>
+          <p>Nasema Pharmacy is a desktop application — it installs and runs locally on the shop's own Windows PC. There's no live web demo (and nothing to sign up for); grab the installer and open it on the counter.</p>
+          <div style="position:relative;margin-top:24px;display:flex;flex-wrap:wrap;gap:12px">
+            <a class="btn btn-primary" href="https://github.com/NextByte-Solutions/Pharmacy_Nasima_Medical_Hall/releases/latest" target="_blank" rel="noopener">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>
+              Download installer (Releases)
+            </a>
+            <a class="btn btn-ghost" href="https://github.com/NextByte-Solutions/Pharmacy_Nasima_Medical_Hall" target="_blank" rel="noopener">Source on GitHub</a>
+          </div>
+        </div>
+        <div class="dl-meta">
+          <div class="r"><span class="ic" aria-hidden="true">🪟</span> Windows 10 / 11 · 64-bit</div>
+          <div class="r"><span class="ic" aria-hidden="true">⚙️</span> No Node, Git or setup needed</div>
+          <div class="r"><span class="ic" aria-hidden="true">📡</span> Works fully offline after install</div>
+          <div class="r"><span class="ic" aria-hidden="true">💾</span> Data stays on the PC (one SQLite file)</div>
+        </div>
+      </div>
+      <div style="text-align:center"><span class="note">ℹ️ The screens above are interface previews. Install the app to use the real thing.</span></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap foot-row">
+    <div>© <span id="yr">2026</span> Nasema Pharmacy · built by <a href="https://github.com/NextByte-Solutions" target="_blank" rel="noopener">NextByte Solutions</a></div>
+    <div style="display:flex;gap:18px">
+      <a href="https://github.com/NextByte-Solutions/Pharmacy_Nasima_Medical_Hall" target="_blank" rel="noopener">GitHub repo</a>
+      <a href="https://github.com/NextByte-Solutions/Pharmacy_Nasima_Medical_Hall/releases/latest" target="_blank" rel="noopener">Download</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Mobile menu
+  var btn = document.getElementById('menuBtn');
+  var links = document.getElementById('navlinks');
+  btn.addEventListener('click', function () {
+    var open = links.classList.toggle('open');
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  links.addEventListener('click', function (e) {
+    if (e.target.tagName === 'A') { links.classList.remove('open'); btn.setAttribute('aria-expanded', 'false'); }
+  });
+</script>
+</body>
+</html>
