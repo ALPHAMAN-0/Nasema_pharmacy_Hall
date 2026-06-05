@@ -122,6 +122,8 @@
   /* screens / previews */
   .previews{display:grid;grid-template-columns:1.1fr .9fr;gap:22px}
   @media (max-width:900px){.previews{grid-template-columns:1fr}}
+  .previews3{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:22px}
+  @media (max-width:900px){.previews3{grid-template-columns:1fr}}
   .frame{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:var(--shadow-lg)}
   .frame .bar{height:38px;display:flex;align-items:center;gap:7px;padding:0 14px;background:var(--surface-2);border-bottom:1px solid var(--line)}
   .frame .bar .d{width:11px;height:11px;border-radius:50%;background:#cdd9d9}
@@ -182,6 +184,16 @@
   .dl-meta .ic{width:24px;height:24px;border-radius:7px;background:rgba(255,255,255,.12);display:grid;place-items:center;flex-shrink:0}
   .note{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;color:var(--mute);background:var(--surface-2);border:1px dashed var(--line);padding:8px 13px;border-radius:10px;margin-top:18px}
 
+  /* location / map */
+  .map-wrap{margin-top:28px;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);aspect-ratio:16/9;background:var(--surface-2)}
+  @media (max-width:700px){.map-wrap{aspect-ratio:4/3}}
+  .map-wrap iframe{border:0;width:100%;height:100%;display:block}
+  .map-meta{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;justify-content:space-between;margin-top:14px;font-size:13.5px;color:var(--mute)}
+  .map-meta .coord{font-family:var(--nums)}
+  .map-meta a{color:var(--teal);font-weight:600}
+  .at-glance{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+  .at-glance span{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--ink-2);background:var(--surface);border:1px solid var(--line);padding:8px 14px;border-radius:999px}
+
   footer{border-top:1px solid var(--line);padding:40px 0;color:var(--mute);font-size:14px}
   .foot-row{display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
   .foot-row a{color:var(--ink-2);font-weight:600}
@@ -209,10 +221,10 @@
       <a href="#who">Who it's for</a>
       <a href="#tech">Tech</a>
       <a href="#screens">Screens</a>
-      <a href="#download">Download</a>
-      <a class="gh" href="https://github.com/NextByte-Solutions/Pharmacy_Nasima_Medical_Hall" target="_blank" rel="noopener">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.7.5.5 5.7.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.2.8-.6v-2c-3.2.7-3.9-1.4-3.9-1.4-.5-1.3-1.3-1.7-1.3-1.7-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.7 1.3 3.4 1 .1-.8.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17 4.6 18 4.9 18 4.9c.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.3c0 .4.2.7.8.6 4.6-1.5 7.9-5.8 7.9-10.9C23.5 5.7 18.3.5 12 .5z"/></svg>
-        GitHub
+      <a href="#location">Location</a>
+      <a class="gh" href="#contact">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/><path d="M3 7l9 6 9-6"/></svg>
+        Contact
       </a>
     </nav>
   </div>
@@ -223,15 +235,15 @@
   <section class="hero" style="padding:0" aria-label="Introduction">
     <div class="wrap">
       <div>
-        <span class="tag">● Free &amp; open source · runs offline</span>
+        <span class="tag">● Built for a real pharmacy · runs fully offline</span>
         <h1>Run a small pharmacy from <span class="accent">one low-power PC</span>.</h1>
         <p class="lede">Nasema Pharmacy is a free desktop app that organizes your medicines, runs the sales counter, and shows you exactly how much your shop earns — all stored locally, working perfectly even with no internet.</p>
         <div class="hero-cta">
-          <a class="btn btn-primary" href="https://github.com/NextByte-Solutions/Pharmacy_Nasima_Medical_Hall/releases/latest" target="_blank" rel="noopener">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>
-            Download for Windows
+          <a class="btn btn-primary" href="#screens">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            See the screens
           </a>
-          <a class="btn btn-ghost" href="https://github.com/NextByte-Solutions/Pharmacy_Nasima_Medical_Hall" target="_blank" rel="noopener">View on GitHub</a>
+          <a class="btn btn-ghost" href="#contact">Get in touch</a>
         </div>
         <div class="hero-meta">
           <span><span class="dot"></span><b>৳0</b> — free, no subscription</span>
@@ -373,7 +385,7 @@
     <div class="wrap">
       <span class="eyebrow">A look inside</span>
       <h2 class="sec-h">The screens the shop uses every day.</h2>
-      <p class="sec-sub">Interface previews of the real app, built in the same emerald design. Install it to see the live thing.</p>
+      <p class="sec-sub">Interface previews of the real app, built in the same emerald design.</p>
 
       <div class="previews" style="margin-top:34px">
         <!-- POS preview -->
@@ -438,42 +450,141 @@
           </div>
         </div>
       </div>
+
+      <div class="previews3">
+        <!-- Dashboard -->
+        <div>
+          <div class="frame" aria-hidden="true">
+            <div class="bar"><span class="d"></span><span class="d"></span><span class="d"></span><span class="ttl">Dashboard</span></div>
+            <div class="body">
+              <div class="stat-row">
+                <div class="stat"><div class="lab">Revenue today</div><div class="val em nums">৳12,480</div></div>
+                <div class="stat"><div class="lab">Orders today</div><div class="val nums">47</div></div>
+              </div>
+              <div class="stat-row" style="margin-top:10px">
+                <div class="stat"><div class="lab">Low stock</div><div class="val nums" style="color:var(--amber)">7</div></div>
+                <div class="stat"><div class="lab">Expiring soon</div><div class="val nums" style="color:var(--rose)">12</div></div>
+              </div>
+              <div class="chart">
+                <span class="bar" style="height:42%"></span><span class="bar" style="height:60%"></span><span class="bar" style="height:52%"></span><span class="bar" style="height:78%"></span><span class="bar" style="height:68%"></span><span class="bar" style="height:92%"></span><span class="bar" style="height:84%"></span>
+              </div>
+            </div>
+          </div>
+          <p class="prev-cap">Dashboard — revenue &amp; daily alerts</p>
+        </div>
+
+        <!-- Medicines -->
+        <div>
+          <div class="frame" aria-hidden="true">
+            <div class="bar"><span class="d"></span><span class="d"></span><span class="d"></span><span class="ttl">Medicines · catalogue</span></div>
+            <div class="body" style="display:flex;flex-direction:column;gap:8px">
+              <div style="display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:10px;padding:9px 11px">
+                <span style="width:30px;height:30px;border-radius:8px;background:#0d9488;color:#fff;display:grid;place-items:center;font-weight:700;font-size:12px;flex-shrink:0">N</span>
+                <div style="flex:1;min-width:0"><div style="font-size:12.5px;font-weight:650">Napa 500mg</div><div style="font-size:10.5px;color:var(--mute)">Paracetamol</div></div>
+                <span class="pill g">Approved</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:10px;padding:9px 11px">
+                <span style="width:30px;height:30px;border-radius:8px;background:#0e7490;color:#fff;display:grid;place-items:center;font-weight:700;font-size:12px;flex-shrink:0">S</span>
+                <div style="flex:1;min-width:0"><div style="font-size:12.5px;font-weight:650">Seclo 20mg</div><div style="font-size:10.5px;color:var(--mute)">Omeprazole</div></div>
+                <span class="pill g">Approved</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:10px;padding:9px 11px">
+                <span style="width:30px;height:30px;border-radius:8px;background:#b45309;color:#fff;display:grid;place-items:center;font-weight:700;font-size:12px;flex-shrink:0">M</span>
+                <div style="flex:1;min-width:0"><div style="font-size:12.5px;font-weight:650">Maxpro 20mg</div><div style="font-size:10.5px;color:var(--mute)">Esomeprazole</div></div>
+                <span class="pill a">Pending</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:10px;padding:9px 11px">
+                <span style="width:30px;height:30px;border-radius:8px;background:#7c3aed;color:#fff;display:grid;place-items:center;font-weight:700;font-size:12px;flex-shrink:0">A</span>
+                <div style="flex:1;min-width:0"><div style="font-size:12.5px;font-weight:650">Amodis 400mg</div><div style="font-size:10.5px;color:var(--mute)">Metronidazole</div></div>
+                <span class="pill b">Rx</span>
+              </div>
+            </div>
+          </div>
+          <p class="prev-cap">Medicines — approve what's sellable</p>
+        </div>
+
+        <!-- Prescriptions -->
+        <div>
+          <div class="frame" aria-hidden="true">
+            <div class="bar"><span class="d"></span><span class="d"></span><span class="d"></span><span class="ttl">Prescriptions</span></div>
+            <div class="body" style="display:flex;flex-direction:column;gap:8px">
+              <div style="display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:10px;padding:10px 11px">
+                <span style="width:26px;height:26px;border-radius:50%;background:var(--surface-2);border:1px solid var(--line);display:grid;place-items:center;font-size:10px;font-weight:700;color:var(--mute);flex-shrink:0">Rx</span>
+                <div style="flex:1;min-width:0"><div style="font-size:12.5px;font-weight:650">Dr. Rahman</div><div style="font-size:10.5px;color:var(--mute)">Amodis 400mg · Metronidazole</div></div>
+                <span class="pill g">Verified</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:10px;padding:10px 11px">
+                <span style="width:26px;height:26px;border-radius:50%;background:var(--surface-2);border:1px solid var(--line);display:grid;place-items:center;font-size:10px;font-weight:700;color:var(--mute);flex-shrink:0">Rx</span>
+                <div style="flex:1;min-width:0"><div style="font-size:12.5px;font-weight:650">Dr. Akter</div><div style="font-size:10.5px;color:var(--mute)">Seclo 20mg · Omeprazole</div></div>
+                <span class="pill a">Pending</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:10px;padding:10px 11px">
+                <span style="width:26px;height:26px;border-radius:50%;background:var(--surface-2);border:1px solid var(--line);display:grid;place-items:center;font-size:10px;font-weight:700;color:var(--mute);flex-shrink:0">Rx</span>
+                <div style="flex:1;min-width:0"><div style="font-size:12.5px;font-weight:650">Dr. Karim</div><div style="font-size:10.5px;color:var(--mute)">Napa Syrup · Paracetamol</div></div>
+                <span class="pill g">Verified</span>
+              </div>
+            </div>
+          </div>
+          <p class="prev-cap">Prescriptions — verified before dispensing</p>
+        </div>
+      </div>
     </div>
   </section>
 
-  <!-- DOWNLOAD -->
-  <section id="download">
+  <!-- LOCATION -->
+  <section id="location" style="background:linear-gradient(160deg,var(--surface),var(--surface-2));border-top:1px solid var(--line)">
+    <div class="wrap">
+      <span class="eyebrow">Where it's running</span>
+      <h2 class="sec-h">A real pharmacy in Dhaka, Bangladesh.</h2>
+      <p class="sec-sub">This isn't a concept project — it runs on the counter at my friend's pharmacy every day. Here's exactly where.</p>
+      <div class="map-wrap">
+        <iframe title="Pharmacy location on Google Maps" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://maps.google.com/maps?q=23.7665,90.359778&amp;z=16&amp;hl=en&amp;output=embed"></iframe>
+      </div>
+      <div class="map-meta">
+        <span class="coord">📍 23°45'59.4&quot;N&nbsp;&nbsp;90°21'35.2&quot;E</span>
+        <a href="https://www.google.com/maps?q=23.7665,90.359778" target="_blank" rel="noopener">Open in Google Maps →</a>
+      </div>
+      <div class="at-glance">
+        <span>🪟 Runs on Windows 10 / 11</span>
+        <span>📡 Works fully offline</span>
+        <span>💾 All data stays on the shop's PC</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact">
     <div class="wrap">
       <div class="download">
         <div>
-          <h2>Free to download. Yours to run.</h2>
-          <p>Nasema Pharmacy is a desktop application — it installs and runs locally on the shop's own Windows PC. There's no live web demo (and nothing to sign up for); grab the installer and open it on the counter.</p>
+          <h2>Like this? Let's build yours.</h2>
+          <p>If you like Nasema Pharmacy — or want a custom desktop app like it for your own shop or business — get in touch. I design and build the whole thing, end to end.</p>
           <div style="position:relative;margin-top:24px;display:flex;flex-wrap:wrap;gap:12px">
-            <a class="btn btn-primary" href="https://github.com/NextByte-Solutions/Pharmacy_Nasima_Medical_Hall/releases/latest" target="_blank" rel="noopener">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>
-              Download installer (Releases)
+            <a class="btn btn-primary" href="mailto:siam.cse.aiub@gmail.com">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/><path d="M3 7l9 6 9-6"/></svg>
+              Email me
             </a>
-            <a class="btn btn-ghost" href="https://github.com/NextByte-Solutions/Pharmacy_Nasima_Medical_Hall" target="_blank" rel="noopener">Source on GitHub</a>
+            <a class="btn btn-ghost" href="https://www.linkedin.com/in/siamhossain4/" target="_blank" rel="noopener">LinkedIn →</a>
           </div>
         </div>
         <div class="dl-meta">
-          <div class="r"><span class="ic" aria-hidden="true">🪟</span> Windows 10 / 11 · 64-bit</div>
-          <div class="r"><span class="ic" aria-hidden="true">⚙️</span> No Node, Git or setup needed</div>
-          <div class="r"><span class="ic" aria-hidden="true">📡</span> Works fully offline after install</div>
-          <div class="r"><span class="ic" aria-hidden="true">💾</span> Data stays on the PC (one SQLite file)</div>
+          <div class="r"><span class="ic" aria-hidden="true">✉</span> siam.cse.aiub@gmail.com</div>
+          <div class="r"><span class="ic" aria-hidden="true">in</span> linkedin.com/in/siamhossain4</div>
+          <div class="r"><span class="ic" aria-hidden="true">⚡</span> Custom desktop &amp; web apps</div>
         </div>
       </div>
-      <div style="text-align:center"><span class="note">ℹ️ The screens above are interface previews. Install the app to use the real thing.</span></div>
     </div>
   </section>
 </main>
 
 <footer>
   <div class="wrap foot-row">
-    <div>© <span id="yr">2026</span> Nasema Pharmacy · built by <a href="https://github.com/NextByte-Solutions" target="_blank" rel="noopener">NextByte Solutions</a></div>
+    <div>© <span id="yr">2026</span> Nasema Pharmacy — a project by <a href="https://www.linkedin.com/in/siamhossain4/" target="_blank" rel="noopener">Siam Hossain · NextByte Solutions</a></div>
     <div style="display:flex;gap:18px">
-      <a href="https://github.com/NextByte-Solutions/Pharmacy_Nasima_Medical_Hall" target="_blank" rel="noopener">GitHub repo</a>
-      <a href="https://github.com/NextByte-Solutions/Pharmacy_Nasima_Medical_Hall/releases/latest" target="_blank" rel="noopener">Download</a>
+      <a href="#screens">Screens</a>
+      <a href="#contact">Contact</a>
+      <a href="mailto:siam.cse.aiub@gmail.com">Email</a>
+      <a href="https://www.linkedin.com/in/siamhossain4/" target="_blank" rel="noopener">LinkedIn</a>
     </div>
   </div>
 </footer>

@@ -1,7 +1,8 @@
 # Nasema Pharmacy — showcase site (deploy bundle)
 
-This folder is a **ready-to-deploy GitHub Pages site**. Drop its **contents** into a
-separate GitHub repo and the page goes live automatically — no build step.
+This folder is a **ready-to-deploy GitHub Pages site** showcasing the Nasema Pharmacy
+desktop app. Drop its **contents** into a separate GitHub repo and the page goes live
+automatically — no build step.
 
 ## What's inside
 ```
@@ -16,7 +17,7 @@ index.html                      ← the whole showcase site (one self-contained 
    index.html
    .github/workflows/deploy.yml
    ```
-   (i.e. `index.html` must be at the root, not inside `DeploymentFIle/`.)
+   (i.e. `index.html` must be at the root, not inside a sub-folder.)
 3. Commit & push to `main`:
    ```bash
    git add index.html .github/workflows/deploy.yml
@@ -31,7 +32,11 @@ index.html                      ← the whole showcase site (one self-contained 
    - **User/Org site** (repo named exactly `<your-username>.github.io`): `https://<your-username>.github.io/`
 
 ## Notes
-- The links inside the page (View on GitHub, Download) point to the **app's code repo**:
-  `https://github.com/NextByte-Solutions/Pharmacy_Nasima_Medical_Hall` — that stays the same
-  no matter where the site is hosted.
+- The page is a **portfolio showcase** (the app is not open source, and there's no public download).
+  The only outbound link is **View on GitHub**, pointing to the app's code repo
+  `https://github.com/NextByte-Solutions/Pharmacy_Nasima_Medical_Hall`. If that repo is **private**,
+  remove the "View on GitHub" buttons (one in the nav, one in the hero) before publishing.
+- The **Location** section embeds a Google Map (the pharmacy at 23°45'59.4"N 90°21'35.2"E). It needs
+  internet to display and only renders when the page is viewed online (e.g. on GitHub Pages),
+  not from a local file.
 - To update the site later, edit `index.html`, commit, and push — Pages redeploys automatically.
