@@ -7,12 +7,8 @@ automatically — no build step.
 ## Architecture / How it Works
 
 ```mermaid
-flowchart LR
-    A[User] --> B[Nasema Pharmacy Hall]
-    B --> C{Logic}
-    C --> D[(Data)]
-    C --> E[Output]
-    D --> C
+flowchart TD
+  ShowcasePage --> DeployWorkflow
 ```
 
 
