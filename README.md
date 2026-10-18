@@ -4,6 +4,18 @@ This folder is a **ready-to-deploy GitHub Pages site** showcasing the Nasema Pha
 desktop app. Drop its **contents** into a separate GitHub repo and the page goes live
 automatically — no build step.
 
+## Architecture / How it Works
+
+```mermaid
+flowchart LR
+    A[User] --> B[Nasema Pharmacy Hall]
+    B --> C{Logic}
+    C --> D[(Data)]
+    C --> E[Output]
+    D --> C
+```
+
+
 ## What's inside
 ```
 index.html                      ← the whole showcase site (one self-contained file)
